@@ -1,0 +1,7 @@
+# Jenna - Personal Desktop Bot Assistant
+# No external dependencies required! Uses only Python standard library.
+#
+# Optional dependencies for enhanced features:
+# requests          # For web API calls
+# rich              # For colorful terminal output
+# schedule          # For advanced scheduling
