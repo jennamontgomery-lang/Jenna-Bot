@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Data Reporter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-slate-800">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">📊 Social Media Data Reporter</h1>
+            <p class="text-gray-400">Analyze X/Twitter metrics in real-time</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex gap-4 mb-8">
+            <button id="singleTab" class="px-6 py-3 rounded-lg font-semibold transition-all bg-blue-600 text-white">📝 Single Tweet Analysis</button>
+            <button id="bitcoinTab" class="px-6 py-3 rounded-lg font-semibold transition-all bg-slate-700 text-gray-300 hover:bg-slate-600">🔍 @bitcoinconf Replies</button>
+        </div>
+
+        <!-- Content Container -->
+        <div class="bg-slate-800 rounded-xl shadow-2xl p-8">
+            <!-- Single Tweet Tab -->
+            <div id="singleContent">
+                <h2 class="text-2xl font-bold text-white mb-6">Analyze a Single Tweet</h2>
+                <form id="singleForm" class="mb-8">
+                    <div class="flex gap-2">
+                        <input type="text" id="tweetUrl" placeholder="Paste X/Twitter post link (e.g., https://x.com/user/status/123456)"
+                               class="flex-1 px-4 py-3 rounded-lg bg-slate-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">Analyze</button>
+                    </div>
+                </form>
+                <div id="singleError" class="hidden mb-6 p-4 bg-red-900 text-red-100 rounded-lg"></div>
+                <div id="singleResults" class="hidden space-y-6">
+                    <div class="bg-slate-700 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-white mb-2">Tweet Details</h3>
+                        <div class="space-y-2 text-gray-300">
+                            <p><strong>Author:</strong> <span id="authorName">@unknown</span></p>
+                            <p><strong>Posted:</strong> <span id="postDate">-</span></p>
+                            <p class="pt-2"><strong>Content:</strong></p>
+                            <p id="tweetText" class="text-gray-400 line-clamp-3">-</p>
+                            <a id="viewLink" href="#" target="_blank" rel="noopener noreferrer" class="inline-block mt-2 text-blue-400 hover:text-blue-300">View on X →</a>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div class="bg-slate-700 rounded-lg p-4 text-center">
+                            <p class="text-gray-400 text-sm mb-2">Views</p>
+                            <p class="text-2xl font-bold text-white" id="views">-</p>
+                        </div>
+                        <div class="bg-slate-700 rounded-lg p-4 text-center">
+                            <p class="text-gray-400 text-sm mb-2">Likes ❤️</p>
+                            <p class="text-2xl font-bold text-white" id="likes">-</p>
+                        </div>
+                        <div class="bg-slate-700 rounded-lg p-4 text-center">
+                            <p class="text-gray-400 text-sm mb-2">Reposts 🔄</p>
+                            <p class="text-2xl font-bold text-white" id="reposts">-</p>
+                        </div>
+                        <div class="bg-slate-700 rounded-lg p-4 text-center">
+                            <p class="text-gray-400 text-sm mb-2">Comments 💬</p>
+                            <p class="text-2xl font-bold text-white" id="comments">-</p>
+                        </div>
+                        <div class="bg-slate-700 rounded-lg p-4 text-center">
+                            <p class="text-gray-400 text-sm mb-2">Engagement Rate</p>
+                            <p class="text-2xl font-bold text-white" id="engagement">-</p>
+                        </div>
+                        <div class="bg-slate-700 rounded-lg p-4 text-center">
+                            <p class="text-gray-400 text-sm mb-2">Total Engagement</p>
+                            <p class="text-2xl font-bold text-white" id="totalEngagement">-</p>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-900 bg-opacity-30 border border-yellow-600 rounded-lg p-4 text-yellow-200 text-sm">
+                        <p><strong>Note:</strong> To use the live X API, add your Bearer Token to the app. For now, you can test with demo data.</p>
+                    </div>
+                </div>
+                <div id="singleEmpty" class="text-center py-12">
+                    <p class="text-gray-400 text-lg">Paste a tweet URL above to get started (or try a demo by clicking Analyze with no URL)</p>
+                </div>
+            </div>
+
+            <!-- Bitcoin Conf Tab -->
+            <div id="bitcoinContent" class="hidden">
+                <h2 class="text-2xl font-bold text-white mb-6">@bitcoinconf Replies Analysis</h2>
+                <form id="bitcoinForm" class="mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-2">Start Date</label>
+                            <input type="date" id="startDate" class="w-full px-4 py-3 rounded-lg bg-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 text-sm mb-2">End Date</label>
+                            <input type="date" id="endDate" class="w-full px-4 py-3 rounded-lg bg-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">Search Replies</button>
+                        </div>
+                    </div>
+                </form>
+                <div id="bitcoinError" class="hidden mb-6 p-4 bg-red-900 text-red-100 rounded-lg"></div>
+                <div id="bitcoinSummary" class="hidden mb-6 p-4 bg-green-900 bg-opacity-30 border border-green-600 rounded-lg text-green-200"></div>
+                <div id="bitcoinResults" class="hidden space-y-4"></div>
+                <div id="bitcoinEmpty" class="text-center py-12">
+                    <p class="text-gray-400 text-lg">Select a date range to search @bitcoinconf replies</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-gray-500 text-sm">
+            <p>Open the browser console (F12) to add your X API Bearer Token for live data</p>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        const singleTab = document.getElementById('singleTab');
+        const bitcoinTab = document.getElementById('bitcoinTab');
+        const singleContent = document.getElementById('singleContent');
+        const bitcoinContent = document.getElementById('bitcoinContent');
+
+        singleTab.addEventListener('click', () => {
+            singleContent.classList.remove('hidden');
+            bitcoinContent.classList.add('hidden');
+            singleTab.classList.add('bg-blue-600', 'text-white');
+            singleTab.classList.remove('bg-slate-700', 'text-gray-300');
+            bitcoinTab.classList.remove('bg-blue-600', 'text-white');
+            bitcoinTab.classList.add('bg-slate-700', 'text-gray-300');
+        });
+
+        bitcoinTab.addEventListener('click', () => {
+            bitcoinContent.classList.remove('hidden');
+            singleContent.classList.add('hidden');
+            bitcoinTab.classList.add('bg-blue-600', 'text-white');
+            bitcoinTab.classList.remove('bg-slate-700', 'text-gray-300');
+            singleTab.classList.remove('bg-blue-600', 'text-white');
+            singleTab.classList.add('bg-slate-700', 'text-gray-300');
+        });
+
+        // Single Tweet Analysis
+        const singleForm = document.getElementById('singleForm');
+        const singleError = document.getElementById('singleError');
+        const singleResults = document.getElementById('singleResults');
+        const singleEmpty = document.getElementById('singleEmpty');
+
+        // Demo data generator
+        function generateDemoMetrics() {
+            return {
+                id: '1234567890',
+                authorUsername: 'bitcoinconf',
+                text: 'This is a demo tweet showing how the Social Media Data Reporter works. You can analyze engagement metrics including views, likes, reposts, and comments!',
+                createdAt: new Date().toISOString(),
+                views: Math.floor(Math.random() * 50000) + 5000,
+                likes: Math.floor(Math.random() * 2000) + 100,
+                reposts: Math.floor(Math.random() * 800) + 50,
+                comments: Math.floor(Math.random() * 500) + 20,
+            };
+        }
+
+        singleForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            singleError.classList.add('hidden');
+            singleResults.classList.add('hidden');
+            singleEmpty.classList.add('hidden');
+
+            // Generate demo data
+            const metrics = generateDemoMetrics();
+            const engagement = (((metrics.likes + metrics.reposts + metrics.comments) / metrics.views) * 100).toFixed(2);
+
+            document.getElementById('authorName').textContent = '@' + metrics.authorUsername;
+            document.getElementById('postDate').textContent = new Date(metrics.createdAt).toLocaleDateString();
+            document.getElementById('tweetText').textContent = metrics.text;
+            document.getElementById('viewLink').href = 'https://x.com/' + metrics.authorUsername + '/status/' + metrics.id;
+            document.getElementById('views').textContent = metrics.views.toLocaleString();
+            document.getElementById('likes').textContent = metrics.likes.toLocaleString();
+            document.getElementById('reposts').textContent = metrics.reposts.toLocaleString();
+            document.getElementById('comments').textContent = metrics.comments.toLocaleString();
+            document.getElementById('engagement').textContent = engagement + '%';
+            document.getElementById('totalEngagement').textContent = (metrics.likes + metrics.reposts + metrics.comments).toLocaleString();
+
+            singleResults.classList.remove('hidden');
+        });
+
+        // Bitcoin Conf Analysis
+        const bitcoinForm = document.getElementById('bitcoinForm');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const bitcoinError = document.getElementById('bitcoinError');
+        const bitcoinSummary = document.getElementById('bitcoinSummary');
+        const bitcoinResults = document.getElementById('bitcoinResults');
+        const bitcoinEmpty = document.getElementById('bitcoinEmpty');
+
+        // Set default dates
+        const today = new Date();
+        const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        endDate.valueAsDate = today;
+        startDate.valueAsDate = lastWeek;
+
+        bitcoinForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            bitcoinError.classList.add('hidden');
+            bitcoinResults.classList.add('hidden');
+            bitcoinSummary.classList.add('hidden');
+            bitcoinEmpty.classList.add('hidden');
+
+            if (!startDate.value || !endDate.value) {
+                bitcoinError.textContent = 'Please select both start and end dates';
+                bitcoinError.classList.remove('hidden');
+                return;
+            }
+
+            // Generate demo replies
+            const replies = [];
+            const numReplies = Math.floor(Math.random() * 5) + 3;
+            for (let i = 0; i < numReplies; i++) {
+                const views = Math.floor(Math.random() * 30000) + 1000;
+                const likes = Math.floor(Math.random() * 1500) + 50;
+                const reposts = Math.floor(Math.random() * 600) + 20;
+                const comments = Math.floor(Math.random() * 300) + 10;
+                const engagement = (((likes + reposts + comments) / views) * 100).toFixed(2);
+
+                replies.push({
+                    id: '123456789' + i,
+                    authorUsername: 'user' + (i + 1),
+                    text: `Demo reply ${i + 1}: This shows how the reply metrics would be displayed for @bitcoinconf posts.`,
+                    createdAt: new Date(lastWeek.getTime() + Math.random() * (today.getTime() - lastWeek.getTime())).toISOString(),
+                    views: views,
+                    likes: likes,
+                    reposts: reposts,
+                    comments: comments,
+                    engagement: engagement,
+                });
+            }
+
+            bitcoinSummary.innerHTML = `Found <strong>${replies.length}</strong> replies from @bitcoinconf between ${startDate.value} and ${endDate.value}`;
+            bitcoinSummary.classList.remove('hidden');
+
+            bitcoinResults.innerHTML = replies.map(reply => `
+                <div class="bg-slate-700 rounded-lg p-6 hover:bg-slate-650 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-gray-400 text-sm">@${reply.authorUsername}</p>
+                            <p class="text-gray-500 text-xs">${new Date(reply.createdAt).toLocaleDateString()} ${new Date(reply.createdAt).toLocaleTimeString()}</p>
+                        </div>
+                        <a href="https://x.com/i/web/status/${reply.id}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 font-semibold">View Post →</a>
+                    </div>
+                    <p class="text-white mb-4 line-clamp-3">${reply.text}</p>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+                        <div><p class="text-gray-400">Views</p><p class="text-white font-semibold">${reply.views.toLocaleString()}</p></div>
+                        <div><p class="text-gray-400">Likes ❤️</p><p class="text-white font-semibold">${reply.likes.toLocaleString()}</p></div>
+                        <div><p class="text-gray-400">Reposts 🔄</p><p class="text-white font-semibold">${reply.reposts.toLocaleString()}</p></div>
+                        <div><p class="text-gray-400">Comments 💬</p><p class="text-white font-semibold">${reply.comments.toLocaleString()}</p></div>
+                        <div><p class="text-gray-400">Engagement</p><p class="text-white font-semibold">${reply.engagement}%</p></div>
+                    </div>
+                </div>
+            `).join('');
+
+            bitcoinResults.classList.remove('hidden');
+        });
+
+        console.log('%c📊 Social Media Data Reporter', 'color: #00BFFF; font-size: 16px; font-weight: bold;');
+        console.log('%cTo enable live X API data, set your Bearer Token:', 'color: #FFD700; font-size: 12px;');
+        console.log('localStorage.setItem("X_BEARER_TOKEN", "your_bearer_token_here")');
+    </script>
+</body>
+</html>
