@@ -193,6 +193,10 @@ UTILITIES:
   calc <expression> - Calculate a math expression
   weather <city>    - Get weather info (requires curl)
 
+SOCIAL MEDIA:
+  report <X_URL>    - Analyze X (Twitter) post metrics (CTR, ER, Likes, Views, Comments, Reposts)
+  report config     - View/configure API credentials
+
 FUN:
   joke              - Tell me a joke!
   fact              - Random fun fact
