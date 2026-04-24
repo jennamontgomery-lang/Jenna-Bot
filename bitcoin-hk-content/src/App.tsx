@@ -1,15 +1,22 @@
 import { useState, useCallback } from 'react';
-import { LayoutDashboard, Library, PenSquare } from 'lucide-react';
-import type { Post } from './types';
+import { LayoutDashboard, Library, PenSquare, Bird } from 'lucide-react';
+import type { Post, TweetTemplate } from './types';
 import { PILLARS } from './data/pillars';
 import { getPosts } from './data/store';
 import Dashboard from './pages/Dashboard';
+import TwitterDashboard from './pages/TwitterDashboard';
 import LibraryPage from './pages/Library';
 import PillarView from './pages/PillarView';
 import PostBuilder from './components/PostBuilder';
 
-type Tab = 'dashboard' | 'builder' | 'library';
+type Tab = 'twitter' | 'dashboard' | 'builder' | 'library';
 type View = { type: 'pillar'; pillarId: string } | null;
+
+interface Prefill {
+  content: string;
+  pillarId: string;
+  hashtags: string[];
+}
 
 function usePosts() {
   const [posts, setPosts] = useState<Post[]>(() => getPosts());
@@ -18,9 +25,10 @@ function usePosts() {
 }
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>('dashboard');
+  const [tab, setTab] = useState<Tab>('twitter');
   const [view, setView] = useState<View>(null);
   const [builderPillarId, setBuilderPillarId] = useState<string | undefined>();
+  const [prefill, setPrefill] = useState<Prefill | null>(null);
   const { posts, refresh } = usePosts();
 
   function openPillar(pillarId: string) {
@@ -30,17 +38,36 @@ export default function App() {
 
   function openBuilderForPillar(pillarId: string) {
     setBuilderPillarId(pillarId);
+    setPrefill(null);
+    setTab('builder');
+    setView(null);
+  }
+
+  function handleUseTweet(template: TweetTemplate) {
+    setPrefill({ content: template.content, pillarId: template.pillarId, hashtags: template.hashtags });
+    setBuilderPillarId(template.pillarId);
     setTab('builder');
     setView(null);
   }
 
   const NAV = [
+    { id: 'twitter' as Tab, label: 'Twitter', icon: Bird },
     { id: 'dashboard' as Tab, label: 'Dashboard', icon: LayoutDashboard },
     { id: 'builder' as Tab, label: 'Post Builder', icon: PenSquare },
     { id: 'library' as Tab, label: 'Library', icon: Library },
   ];
 
   function renderContent() {
+    if (tab === 'twitter') {
+      return (
+        <TwitterDashboard
+          posts={posts}
+          onUseTweet={handleUseTweet}
+          onChanged={refresh}
+        />
+      );
+    }
+
     if (tab === 'dashboard') {
       if (view?.type === 'pillar') {
         const pillar = PILLARS.find(p => p.id === view.pillarId)!;
@@ -56,6 +83,7 @@ export default function App() {
       }
       return <Dashboard posts={posts} onPillarClick={openPillar} />;
     }
+
     if (tab === 'builder') {
       return (
         <div className="space-y-4">
@@ -66,12 +94,16 @@ export default function App() {
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <PostBuilder
               defaultPillarId={builderPillarId}
-              onSaved={refresh}
+              prefillContent={prefill?.content}
+              prefillPillarId={prefill?.pillarId}
+              prefillHashtags={prefill?.hashtags}
+              onSaved={() => { refresh(); setPrefill(null); }}
             />
           </div>
         </div>
       );
     }
+
     return <LibraryPage posts={posts} onChanged={refresh} />;
   }
 
