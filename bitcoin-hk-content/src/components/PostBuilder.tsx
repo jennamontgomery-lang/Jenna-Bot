@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, CheckCheck } from 'lucide-react';
 import type { Platform, Post } from '../types';
 import { PILLARS, PLATFORM_LIMITS, PLATFORM_LABELS } from '../data/pillars';
@@ -6,12 +6,15 @@ import { addPost, generateId } from '../data/store';
 
 interface Props {
   defaultPillarId?: string;
+  prefillContent?: string;
+  prefillPillarId?: string;
+  prefillHashtags?: string[];
   onSaved: () => void;
 }
 
 const PLATFORMS: Platform[] = ['twitter', 'linkedin', 'instagram', 'telegram'];
 
-export default function PostBuilder({ defaultPillarId, onSaved }: Props) {
+export default function PostBuilder({ defaultPillarId, prefillContent, prefillPillarId, prefillHashtags, onSaved }: Props) {
   const [pillarId, setPillarId] = useState(defaultPillarId || PILLARS[0].id);
   const [platform, setPlatform] = useState<Platform>('twitter');
   const [content, setContent] = useState('');
@@ -19,6 +22,17 @@ export default function PostBuilder({ defaultPillarId, onSaved }: Props) {
   const [scheduledDate, setScheduledDate] = useState('');
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (prefillContent) {
+      const body = prefillHashtags?.length
+        ? `${prefillContent}\n\n${prefillHashtags.join(' ')}`
+        : prefillContent;
+      setContent(body);
+      if (prefillPillarId) setPillarId(prefillPillarId);
+      setPlatform('twitter');
+    }
+  }, [prefillContent, prefillPillarId, prefillHashtags]);
 
   const pillar = PILLARS.find(p => p.id === pillarId)!;
   const limit = PLATFORM_LIMITS[platform];

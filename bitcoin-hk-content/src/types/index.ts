@@ -29,3 +29,24 @@ export interface CalendarEntry {
   date: string;
   postId: string;
 }
+
+export interface TweetTemplate {
+  id: string;
+  content: string;
+  pillarId: string;
+  hashtags: string[];
+  category: string;
+}
+
+export interface MarketingPhase {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  dailyTweetTarget: [number, number];
+  pillarMix: Record<string, number>;
+  tweetTemplates: TweetTemplate[];
+  postingTimes: string[];
+  description: string;
+  color: string;
+}
